@@ -18,6 +18,7 @@
     "express": "^4.17.1",
     "express-formidable": "^1.2.0",
     "lodash": "^4.17.21",
+    "mailgun-js": "^0.22.0",
     "mongoose": "^5.13.2",
     "uid2": "0.0.3"
   }

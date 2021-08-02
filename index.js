@@ -18,23 +18,18 @@ app.use(formidable());
 app.use(cors());
 
 //Connect to database
-// mongoose.connect("mongodb://localhost:27017/vinted-clone", {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-//   useCreateIndex: true,
-// });
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true, //because of the unique statement in User model
 });
 
-//connect to pictures web hosting service
+//connect to CDN (pictures web hosting service)
 cloudinary.config({
   //account datas from cloudinary dashboard
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 //Import all routes

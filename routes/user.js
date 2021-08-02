@@ -9,6 +9,12 @@ const uid2 = require("uid2");
 //import cloudinary to upload newUser avater on web hosting service
 const cloudinary = require("cloudinary").v2;
 
+//import mailgun-js for automailing on login, signup etc...
+const mailgun = require("mailgun-js")({
+  apiKey: process.env.MAILGUN_API_KEY,
+  domain: process.env.MAILGUN_DOMAIN,
+});
+
 //import lodash
 const lodash = require("lodash");
 
@@ -54,6 +60,20 @@ const createUser = async (req, res) => {
             hash: hash,
             salt: salt,
           });
+          //create data object to send by email
+          const data = {
+            from: "Vinted clone <no-reply@vintedclone.fr>",
+            to: email,
+            subject: `Bienvenue chez Vinted ${username}`,
+            text: `Bonjour ${username},
+            Je tenais à vous féliciter de faire partie de notre communauté.
+            A bientôt,
+            L'équipe Vinted`,
+          };
+          //send data object with mailgun-js
+          mailgun.messages().send(data, (error, body) => {
+            console.log(body);
+          });
           //upload newUser avatar with cloudinary to /vinted-clone/user/newuserId
           const result = await cloudinary.uploader.upload(
             req.files.picture.path,
@@ -86,7 +106,7 @@ const createUser = async (req, res) => {
     res.status(400).json(error.message);
   }
 };
-router.post("/users/signup", createUser);
+router.post("/user/signup", createUser);
 
 //READ
 const accessUser = async (req, res) => {
@@ -101,6 +121,19 @@ const accessUser = async (req, res) => {
       );
       //when hashes are equal we answer the client with this object
       if (existingUser.hash == hash) {
+        //create data object to send by email
+        const data = {
+          from: "Vinted clone <no-reply@vintedclone.fr>",
+          to: existingUser.email,
+          subject: "Nouvelle connexion à votre compte",
+          text: `Bonjour ${existingUser.account.username},
+          Une connexion a été enregistré sur votre compte. S'il ne s'agit pas de vous, contactez le service client.
+          L'équipe Vinted`,
+        };
+        //send data object with mailgun-js
+        mailgun.messages().send(data, (error, body) => {
+          console.log(body);
+        });
         res.status(200).json({
           _id: existingUser._id,
           token: existingUser.token,
