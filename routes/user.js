@@ -31,7 +31,8 @@ const Offer = require("../models/Offer");
 const createUser = async (req, res) => {
   try {
     //Destructuring req.fields object
-    const { email, username, phone, password, confirmPassword } = req.fields;
+    const { email, username, phone, password, confirmPassword, picPath } =
+      req.fields;
     //Check if user digits the username
     if (username) {
       // searching for an existing email in the User collection
@@ -75,12 +76,9 @@ const createUser = async (req, res) => {
             console.log(body);
           });
           //upload newUser avatar with cloudinary to /vinted-clone/user/newuserId
-          const result = await cloudinary.uploader.upload(
-            req.files.picture.path,
-            {
-              folder: `/vinted-clone/users/${newUser._id}`,
-            }
-          );
+          const result = await cloudinary.uploader.upload(picPath, {
+            folder: `/vinted-clone/users/${newUser._id}`,
+          });
 
           //Add image secure_url to newUser
           newUser.account.avatar = result.secure_url;

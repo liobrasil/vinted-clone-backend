@@ -6,6 +6,8 @@ const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
 //import CORS
 const cors = require("cors");
+//import Stripe for payment
+const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 
 //Activate env variables to use process.env.<SECRET ENV VARIABLES>
 require("dotenv").config();
@@ -37,6 +39,23 @@ const userRoutes = require("./routes/user");
 const offerRoutes = require("./routes/offer");
 app.use(userRoutes);
 app.use(offerRoutes);
+
+//Route to receive stripeToken
+app.post("/pay", async (req, res) => {
+  //receive stripeToken from Frontend given by Stripe API
+  const stripeToken = req.fields.token;
+  //create transaction to receive the cash
+  const response = await stripe.charges.create({
+    amount: req.fields.amount,
+    currency: "eur",
+    description: req.fields.description,
+    //sending the token for verification
+    source: stripeToken,
+  });
+  console.log(response.status);
+  //send response to frontend to tell if payment was succesfull
+  res.json(response);
+});
 
 //Mandatory routes
 app.get("/", (req, res) => res.status(200).json("Welcome to my serveur"));
